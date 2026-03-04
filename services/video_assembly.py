@@ -154,8 +154,11 @@ def build_timeline(segments):
 
         # Get duration from audio file
         try:
-            with AudioFileClip(str(narration_audio)) as audio_clip:
+            audio_clip = AudioFileClip(str(narration_audio))
+            try:
                 duration = float(audio_clip.duration)
+            finally:
+                audio_clip.close()
         except Exception as e:
             raise RuntimeError(f"Failed to load audio file: {narration_audio}: {e}")
 
