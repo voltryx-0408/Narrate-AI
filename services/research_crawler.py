@@ -12,14 +12,12 @@ External APIs:
 
 import asyncio
 import json
-import re
 from hashlib import sha256
 from pathlib import Path
 from urllib.parse import urlparse
 from typing import Any
 
 import requests
-from bs4 import BeautifulSoup
 from crawl4ai import AsyncWebCrawler
 
 from core.models import create_research_note, create_research_source

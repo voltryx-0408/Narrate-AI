@@ -14,8 +14,6 @@ Why dictionaries instead of dataclasses:
 - More flexible for pipeline data passing
 """
 
-from pathlib import Path
-
 from pydantic import BaseModel
 
 

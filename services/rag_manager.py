@@ -13,12 +13,10 @@ The system uses namespaces to isolate different topics in the same index.
 
 import hashlib
 import logging
-from pathlib import Path
 from typing import Any
 
 from sentence_transformers import SentenceTransformer
 from pinecone import Pinecone, ServerlessSpec
-from pydantic import BaseModel
 
 # Suppress verbose transformer library logs
 logging.getLogger("transformers").setLevel(logging.ERROR)
