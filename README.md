@@ -1,5 +1,7 @@
 # Narrate-AI
 
+> **Always use `uv` for running Python scripts and managing dependencies.**
+
 Narrate-AI turns a single topic into a narrated documentary video. It researches the topic, writes a script, finds matching images, generates narration, and assembles everything into a video.
 
 ## Table of Contents
