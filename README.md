@@ -46,13 +46,15 @@ The pipeline runs in four phases: Research, Generation, Retrieval, and Productio
 
 10. **Image Retrieval** — Uses Serper.dev (Google Images) to download candidate images for each segment. It searches using multiple queries per segment (default 5 queries with 10 images each) to ensure a diverse pool of candidates.
 
+10.5. **Aspect Ratio Filtering** — Filters out portrait and square images, keeping only landscape images (aspect ratio >= 4:3). This ensures images fit the 1280x720 video frame without cropping or letterboxing.
+
 11. **Image Ranking** — Evaluates all downloaded candidates using OpenCLIP (a vision-language model). It compares each image against the segment's CLIP descriptions and ranks them by relevance score, combined with image quality metrics (resolution and sharpness) to prefer high-quality images. Falls back to keyword matching if OpenCLIP fails.
 
 ### Phase 4: Production
 
 12. **Narration** — Synthesizes the audio narration from the script. Uses ElevenLabs for high-quality, human-like voices (requires API key) or Edge TTS as a free alternative. The audio is generated to match the timing of the visual segments.
 
-13. **Timeline + Assembly** — Combines all elements into the final video. Images are centered in a 1280x720 frame, the narration audio is synchronized with segment transitions, and everything is rendered at 15fps into a final MP4 file.
+13. **Timeline + Assembly** — Combines all elements into the final video. Images are centered in a 1280x720 frame with Ken Burns zoom effects, the narration audio is synchronized with segment transitions, background music is mixed via ffmpeg, and everything is rendered at 15fps into a final MP4 file.
 
 ### Output Files
 
@@ -96,7 +98,7 @@ Narrate-AI/
 │   ├── models.py              # Pydantic data models
 │   └── pipeline.py            # Main documentary generation pipeline
 ├── main.py                    # CLI entry point
-├── streamlit_app.py           # Web UI
+├── app.py                     # Streamlit Web UI
 └── README.md                  # This file
 ```
 
@@ -127,7 +129,7 @@ Then edit `.env` and fill in your API keys. The pipeline runs without API keys u
 Launch the web interface:
 
 ```bash
-uv run streamlit run streamlit_app.py
+uv run streamlit run app.py
 ```
 
 The UI lets you:
