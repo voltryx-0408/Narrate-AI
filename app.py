@@ -282,7 +282,7 @@ header[data-testid="stHeader"] {
 """
 
 
-def _build_command(topic, max_websites, tts_provider):
+def _build_command(topic: str, max_websites: int, tts_provider: str) -> list[str]:
     return [
         sys.executable,
         str(MAIN_SCRIPT),
@@ -294,7 +294,7 @@ def _build_command(topic, max_websites, tts_provider):
     ]
 
 
-def _extract_value(logs, prefix):
+def _extract_value(logs: list[str], prefix: str) -> str | None:
     for line in reversed(logs):
         if line.startswith(prefix):
             return line.split(":", 1)[1].strip()
@@ -323,7 +323,7 @@ def render_header():
     )
 
 
-def render_pipeline(active_stage=0):
+def render_pipeline(active_stage: int = 0) -> None:
     stage_html = '<div class="pipeline-container">'
     for i, (icon, label) in enumerate(PIPELINE_STAGES):
         active = i == active_stage
@@ -344,7 +344,7 @@ def render_pipeline(active_stage=0):
     st.markdown(stage_html, unsafe_allow_html=True)
 
 
-def _infer_stage_from_log_line(line, current_stage):
+def _infer_stage_from_log_line(line: str, current_stage: int) -> int:
     """Infer pipeline stage index from one log line."""
     match = re.search(r"\[PIPELINE\]\s+Step\s+(\d+):", line)
     if match:
