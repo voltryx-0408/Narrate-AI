@@ -14,8 +14,6 @@ Agent Type: LLM-based (Groq API)
 Model: llama-3.3-70b-versatile
 """
 
-from groq import Groq
-
 import json
 
 from core.models import ImageSegmentation

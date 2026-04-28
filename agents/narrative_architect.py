@@ -13,11 +13,9 @@ Agent Type: LLM-based (Groq API)
 Model: openai/gpt-oss-20b
 """
 
-from groq import Groq
-
 import json
 
-from core.models import NarrativePlan, NarrativeSection
+from core.models import NarrativePlan
 
 
 def extract_json(text: str) -> dict:

@@ -13,8 +13,6 @@ Agent Type: LLM-based (Groq API)
 Model: meta-llama/llama-4-scout-17b-16e-instruct
 """
 
-from groq import Groq
-
 from core.models import NarrativePlan
 
 

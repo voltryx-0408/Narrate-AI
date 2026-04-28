@@ -13,11 +13,9 @@ Agent Type: LLM-based (Groq API)
 Model: openai/gpt-oss-20b
 """
 
-from groq import Groq
-
 import json
 
-from core.models import PlanQueries, SectionQuery
+from core.models import PlanQueries
 
 
 def extract_json(text: str) -> dict:
