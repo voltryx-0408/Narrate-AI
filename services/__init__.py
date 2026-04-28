@@ -19,7 +19,7 @@ from .audio_generator import (
 )
 from .image_placement import build_segments
 from .image_ranking import create_ranking_state, rank_images
-from .image_retrieval import retrieve_images
+from .image_retrieval import retrieve_images, filter_images_by_aspect_ratio
 from .rag_manager import PineconeManager, create_pinecone_manager
 from .research_crawler import crawl_and_build_notes, discover_sources
 from .video_assembly import assemble_video, build_timeline
@@ -36,6 +36,7 @@ __all__ = [
     "create_ranking_state",
     "rank_images",
     "retrieve_images",
+    "filter_images_by_aspect_ratio",
     # RAG
     "PineconeManager",
     "create_pinecone_manager",

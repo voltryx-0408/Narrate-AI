@@ -10,7 +10,6 @@ are later ranked by the ranking service.
 """
 
 import json
-from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from hashlib import sha256
 from pathlib import Path
@@ -18,6 +17,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 import requests
+from PIL import Image
 
 from core.models import create_image_candidate
 
@@ -142,9 +142,10 @@ def retrieve_images(config, cache, segments, images_root):
 
         # Search for each query and collect unique image URLs
         for query in queries:
-            results = _search_images_with_client(config, cache, query)
+            search_query = f"{query} high quality image"
+            results = _search_images_with_client(config, cache, search_query)
             print(
-                f"[IMAGES] Segment {segment_id}: query '{query}' returned {len(results)} results",
+                f"[IMAGES] Segment {segment_id}: query '{search_query}' returned {len(results)} results",
                 flush=True,
             )
 
@@ -349,3 +350,64 @@ def _filename_from_url(url, prefix):
     if "." not in safe_stem:
         safe_stem = f"{safe_stem}.jpg"
     return f"{prefix}_{safe_stem}"
+
+
+def filter_images_by_aspect_ratio(candidates, min_ratio=4 / 3):
+    """Filter images by aspect ratio, rejecting portrait/tall images.
+
+    Removes images that are more vertical than the specified ratio.
+    For example, with default 4:3 ratio:
+    - 16:9 (1.78) → Keep (wider)
+    - 4:3 (1.33) → Keep (equal)
+    - 3:4 (0.75) → Reject (more vertical)
+    - 1:1 (1.0) → Reject (square)
+
+    Args:
+        candidates: List of image candidate dicts with 'local_path' field
+        min_ratio: Minimum aspect ratio (width/height) to keep. Default 4/3.
+
+    Returns:
+        Filtered list of candidates
+    """
+    TOLERANCE = 0.01
+    filtered = []
+
+    for candidate in candidates:
+        local_path = candidate.get("local_path")
+        if not local_path or not local_path.exists():
+            print(f"[IMAGES] Filter: skipping candidate (no local path)", flush=True)
+            continue
+
+        try:
+            with Image.open(local_path) as img:
+                width, height = img.size
+                if height == 0:
+                    print(
+                        f"[IMAGES] Filter: rejected {local_path.name} (zero height)",
+                        flush=True,
+                    )
+                    continue
+
+                aspect_ratio = width / height
+                if aspect_ratio >= (min_ratio - TOLERANCE):
+                    filtered.append(candidate)
+                    print(
+                        f"[IMAGES] Filter: kept {local_path.name} (ratio={aspect_ratio:.2f})",
+                        flush=True,
+                    )
+                else:
+                    print(
+                        f"[IMAGES] Filter: rejected {local_path.name} (ratio={aspect_ratio:.2f} < {min_ratio:.2f})",
+                        flush=True,
+                    )
+        except Exception as e:
+            print(
+                f"[IMAGES] Filter: rejected {local_path.name} (error: {e})",
+                flush=True,
+            )
+
+    print(
+        f"[IMAGES] Filter: {len(filtered)}/{len(candidates)} images kept",
+        flush=True,
+    )
+    return filtered
