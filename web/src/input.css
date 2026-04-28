@@ -1,0 +1,207 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #131317;
+  color: #e4e1e7;
+  -webkit-font-smoothing: antialiased;
+}
+
+.glass-surface {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-floating {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 40px -10px rgba(79, 70, 229, 0.2);
+}
+
+.light-leak {
+  background: radial-gradient(
+    circle at center,
+    rgba(79, 70, 229, 0.15) 0%,
+    transparent 70%
+  );
+}
+
+/* ===== Scroll Reveal Base ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered children */
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-stagger.visible > *:nth-child(1) {
+  transition-delay: 0s;
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-stagger.visible > *:nth-child(2) {
+  transition-delay: 0.1s;
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-stagger.visible > *:nth-child(3) {
+  transition-delay: 0.2s;
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-stagger.visible > *:nth-child(4) {
+  transition-delay: 0.3s;
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-stagger.visible > *:nth-child(5) {
+  transition-delay: 0.4s;
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-stagger.visible > *:nth-child(6) {
+  transition-delay: 0.5s;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Slide from left / right */
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-60px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-right {
+  opacity: 0;
+  transform: translateX(60px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-left.visible,
+.reveal-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Scale up reveal */
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-scale.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ===== Hero entrance animation ===== */
+.hero-badge {
+  animation: heroFadeUp 0.8s 0.2s both cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-title {
+  animation: heroFadeUp 0.9s 0.4s both cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-subtitle {
+  animation: heroFadeUp 0.9s 0.6s both cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-buttons {
+  animation: heroFadeUp 0.9s 0.8s both cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes heroFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Card glow on hover ===== */
+.glass-surface,
+.glass-floating {
+  transition: border-color 0.4s ease, box-shadow 0.4s ease,
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-surface:hover,
+.glass-floating:hover {
+  border-color: rgba(195, 192, 255, 0.25);
+  box-shadow: 0 0 40px -10px rgba(79, 70, 229, 0.3),
+    0 8px 32px rgba(0, 0, 0, 0.3);
+  transform: translateY(-4px);
+}
+
+/* ===== Terminal typing cursor ===== */
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* ===== Terminal line-by-line reveal ===== */
+.terminal-line {
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.terminal-line.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ===== Floating glow orbs ===== */
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.glow-orb.active {
+  opacity: 1;
+}
+@keyframes orbFloat {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(15px, -20px);
+  }
+  66% {
+    transform: translate(-10px, 10px);
+  }
+}
+.glow-orb.active {
+  animation: orbFloat 8s ease-in-out infinite;
+}
+
+/* ===== Parallax scroll ===== */
+.parallax-slow {
+  will-change: transform;
+}
