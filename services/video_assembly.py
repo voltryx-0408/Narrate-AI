@@ -409,17 +409,3 @@ def _build_segment_clip(
     audio_clip = AudioFileClip(str(item["audio_path"]))
     composite = composite.with_audio(audio_clip)
     return composite
-
-    with Image.open(source_image_path).convert("RGB"):
-        fitted = ImageOps.fit(
-            source_image_path, resolution, method=Image.Resampling.LANCZOS
-        )
-        blurred = fitted.filter(ImageFilter.GaussianBlur(28))
-        blurred.save(out_path, format="JPEG", quality=90)
-    return out_path
-
-    with Image.open(source_image_path).convert("RGB") as source:
-        fitted = ImageOps.fit(source, resolution, method=Image.Resampling.LANCZOS)
-        blurred = fitted.filter(ImageFilter.GaussianBlur(28))
-        blurred.save(out_path, format="JPEG", quality=90)
-    return out_path
