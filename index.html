@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&amp;family=Manrope:wght@200;300;400;500;600;700;800&amp;family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            background-color: #131317;
+            color: #e4e1e7;
+            -webkit-font-smoothing: antialiased;
+        }
+        .glass-surface {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-floating {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 40px -10px rgba(79, 70, 229, 0.2);
+        }
+        .light-leak {
+            background: radial-gradient(circle at center, rgba(79, 70, 229, 0.15) 0%, transparent 70%);
+        }
+
+        /* ===== Scroll Reveal Base ===== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Staggered children */
+        .reveal-stagger > * {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-stagger.visible > *:nth-child(1) { transition-delay: 0s; opacity: 1; transform: translateY(0); }
+        .reveal-stagger.visible > *:nth-child(2) { transition-delay: 0.1s; opacity: 1; transform: translateY(0); }
+        .reveal-stagger.visible > *:nth-child(3) { transition-delay: 0.2s; opacity: 1; transform: translateY(0); }
+        .reveal-stagger.visible > *:nth-child(4) { transition-delay: 0.3s; opacity: 1; transform: translateY(0); }
+        .reveal-stagger.visible > *:nth-child(5) { transition-delay: 0.4s; opacity: 1; transform: translateY(0); }
+        .reveal-stagger.visible > *:nth-child(6) { transition-delay: 0.5s; opacity: 1; transform: translateY(0); }
+
+        /* Slide from left / right */
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(60px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-left.visible,
+        .reveal-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Scale up reveal */
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-scale.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* ===== Hero entrance animation ===== */
+        .hero-badge {
+            animation: heroFadeUp 0.8s 0.2s both cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .hero-title {
+            animation: heroFadeUp 0.9s 0.4s both cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .hero-subtitle {
+            animation: heroFadeUp 0.9s 0.6s both cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .hero-buttons {
+            animation: heroFadeUp 0.9s 0.8s both cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes heroFadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== Card glow on hover ===== */
+        .glass-surface,
+        .glass-floating {
+            transition: border-color 0.4s ease,
+                        box-shadow 0.4s ease,
+                        transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-surface:hover,
+        .glass-floating:hover {
+            border-color: rgba(195, 192, 255, 0.25);
+            box-shadow: 0 0 40px -10px rgba(79, 70, 229, 0.3),
+                        0 8px 32px rgba(0, 0, 0, 0.3);
+            transform: translateY(-4px);
+        }
+
+        /* ===== Terminal typing cursor ===== */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .cursor-blink {
+            animation: blink 1s step-end infinite;
+        }
+
+        /* ===== Terminal line-by-line reveal ===== */
+        .terminal-line {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        .terminal-line.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* ===== Floating glow orbs ===== */
+        .glow-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+        .glow-orb.active {
+            opacity: 1;
+        }
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(15px, -20px); }
+            66% { transform: translate(-10px, 10px); }
+        }
+        .glow-orb.active {
+            animation: orbFloat 8s ease-in-out infinite;
+        }
+
+        /* ===== Parallax scroll ===== */
+        .parallax-slow {
+            will-change: transform;
+        }
+
+
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed-dim": "#4edea3",
+                      "surface-container-highest": "#353439",
+                      "on-tertiary-container": "#67f4b7",
+                      "on-secondary-fixed-variant": "#5d4200",
+                      "primary-fixed": "#e2dfff",
+                      "secondary-fixed": "#ffdea6",
+                      "secondary-fixed-dim": "#eec068",
+                      "surface-container-low": "#1b1b1f",
+                      "on-primary-fixed": "#0f0069",
+                      "surface-container-high": "#2a292e",
+                      "tertiary-fixed": "#6ffbbe",
+                      "tertiary-container": "#006e4b",
+                      "surface-bright": "#39393d",
+                      "on-secondary": "#412d00",
+                      "on-background": "#e4e1e7",
+                      "on-primary-fixed-variant": "#3323cc",
+                      "surface-tint": "#c3c0ff",
+                      "inverse-primary": "#4d44e3",
+                      "on-tertiary-fixed-variant": "#005236",
+                      "primary-fixed-dim": "#c3c0ff",
+                      "primary": "#c3c0ff",
+                      "outline": "#918fa1",
+                      "on-tertiary-fixed": "#002113",
+                      "on-surface-variant": "#c7c4d8",
+                      "primary-container": "#4f46e5",
+                      "surface": "#131317",
+                      "on-error-container": "#ffdad6",
+                      "on-error": "#690005",
+                      "inverse-on-surface": "#303035",
+                      "background": "#131317",
+                      "on-secondary-fixed": "#271900",
+                      "on-primary-container": "#dad7ff",
+                      "inverse-surface": "#e4e1e7",
+                      "on-tertiary": "#003824",
+                      "secondary-container": "#755400",
+                      "outline-variant": "#464555",
+                      "surface-container": "#1f1f24",
+                      "surface-container-lowest": "#0e0e12",
+                      "tertiary": "#4edea3",
+                      "on-primary": "#1d00a5",
+                      "on-surface": "#e4e1e7",
+                      "error": "#ffb4ab",
+                      "error-container": "#93000a",
+                      "surface-variant": "#353439",
+                      "on-secondary-container": "#f9ca71",
+                      "secondary": "#eec068",
+                      "surface-dim": "#131317"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "unit": "4px",
+                      "margin": "40px",
+                      "container-max": "1440px",
+                      "stack-lg": "48px",
+                      "stack-md": "24px",
+                      "stack-sm": "8px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "label-caps": ["Inter"],
+                      "body-lg": ["Manrope"],
+                      "h1": ["Space Grotesk"],
+                      "h2": ["Space Grotesk"],
+                      "body-md": ["Manrope"],
+                      "h3": ["Space Grotesk"]
+              },
+              "fontSize": {
+                      "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "h1": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "h2": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "h3": ["24px", {"lineHeight": "1.3", "letterSpacing": "0.01em", "fontWeight": "500"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-container selection:text-white">
+<main>
+<!-- Hero Section -->
+<section class="relative min-h-[921px] flex items-center justify-center overflow-hidden px-8 py-20">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover opacity-30 mix-blend-luminosity parallax-slow" data-alt="cinematic wide shot of a filmmaker in a dark studio surrounded by holographic screens displaying complex documentary timelines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5Zf6-yGnYKitI5QzWGjfiAk7UoWoFfdO6ttp9Dq_JOW8d2JLadRshQX1KJvz-FHkwdtQG0xXgvTvO7m-tpTudIWp3UP3vbXKeYUy2Rs4xea5iozkYHO52VV0zkxJQ61AIaOhAavVvV6u26NQQVkwaOg0MtmYYzcT4RimyNkZshEuoqMG4ZtsaesjKwd6Sk52bom2DRGuF8lh86CvNApf65bAHZsNlPw2gkRWP557pXCzdKiNzoknRmzE-RAwxuniFidavyG7nj21I"/>
+<div class="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background"></div>
+<div class="glow-orb w-[500px] h-[500px] bg-primary-container/20 top-[-10%] left-[-5%]" style="animation-delay: 0s;"></div>
+<div class="glow-orb w-[400px] h-[400px] bg-secondary/10 bottom-[-5%] right-[-5%]" style="animation-delay: 2s;"></div>
+</div>
+<div class="relative z-10 max-w-5xl text-center">
+<div class="hero-badge inline-flex items-center gap-2 px-4 py-2 mb-8 glass-surface rounded-full">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="font-label-caps text-label-caps text-tertiary">GEN II CINEMATIC ENGINE NOW LIVE</span>
+</div>
+<h1 class="hero-title font-h1 text-h1 md:text-[80px] mb-6 tracking-tighter uppercase leading-none">TURN ANY TOPIC INTO A CINEMATIC DOCUMENTARY</h1>
+<p class="hero-subtitle font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-12">
+                    Narrate-AI bridges the gap between raw imagination and professional documentary production with state-of-the-art AI orchestration.
+                </p>
+<div class="hero-buttons flex flex-col sm:flex-row items-center justify-center gap-6">
+<a href="https://github.com/SOBANEJAZ/Narrate-AI" target="_blank" rel="noopener noreferrer" class="px-10 py-5 bg-primary-container text-white font-h3 text-h3 rounded-lg hover:scale-105 transition-transform duration-300 text-center">View on GitHub</a>
+</div>
+</div>
+</section>
+<!-- Features Bento Grid -->
+<section class="max-w-7xl mx-auto px-8 py-24">
+<div class="reveal-stagger grid grid-cols-12 gap-6">
+<div class="col-span-12 md:col-span-8 glass-surface p-10 rounded-xl relative overflow-hidden group">
+<div class="relative z-10">
+<span class="material-symbols-outlined text-4xl text-primary mb-4" data-icon="auto_awesome">auto_awesome</span>
+<h3 class="font-h2 text-h2 mb-4">Neural Directing</h3>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md">Our AI understands emotional arcs. Orchestrate complex narratives with simple natural language commands.</p>
+</div>
+<div class="absolute right-0 bottom-0 w-1/2 h-full opacity-20 group-hover:opacity-40 transition-opacity duration-700">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="close up of high-end vintage camera lenses with colorful light reflections and bokeh" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvwYFf4jNbENsD8tLpCRU5L46GuwfIh-1zQ8GXQqyxwCe9nyttvm4cQ9MCYvpERjaQAvq_nHQLuXdcT3pgeYC_TE5EI1ZRa9tmQV-ALnBVdZy1y3K5PEdAAclTiyYkCFL5Ymgn5Y5VSa9118Sk3aLZcv3_W2Ba7oRmdUbk4MaEwoD8EtAey2DuHOMRNrO2LorhN0mnP30mJV7lHg309QaWl6DBxolaxFXviNIQLSjNK4CPSrnrPuVc0KTGlV81QV4gZTjINvf9mzKd"/>
+</div>
+</div>
+<div class="col-span-12 md:col-span-4 glass-surface p-10 rounded-xl border-secondary/20">
+<span class="material-symbols-outlined text-4xl text-secondary mb-4" data-icon="timeline">timeline</span>
+<h3 class="font-h3 text-h3 mb-4">Granular Scrubber</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Frame-by-frame AI metadata tagging for every shot in your archive.</p>
+</div>
+<div class="col-span-12 md:col-span-4 glass-surface p-10 rounded-xl">
+<span class="material-symbols-outlined text-4xl text-tertiary mb-4" data-icon="waves">waves</span>
+<h3 class="font-h3 text-h3 mb-4">Soundscape Gen</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Generative atmospheric soundscapes that adapt to your visual pacing.</p>
+</div>
+<div class="col-span-12 md:col-span-8 glass-surface p-10 rounded-xl flex items-center justify-between group">
+<div>
+<h3 class="font-h2 text-h2 mb-2">Real-time Rendering</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Export 8K cinematic footage in seconds, not hours.</p>
+</div>
+<div class="hidden sm:block">
+<div class="w-32 h-32 rounded-full border-4 border-dashed border-primary/30 flex items-center justify-center group-hover:border-primary/60 group-hover:rotate-180 transition-all duration-700">
+<span class="material-symbols-outlined text-5xl text-primary group-hover:scale-110 transition-transform duration-500" data-icon="speed">speed</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Pipeline Flowchart -->
+<section class="bg-surface-container-lowest py-24 px-8 relative overflow-hidden">
+<div class="light-leak absolute top-0 left-0 w-full h-full opacity-50"></div>
+<div class="glow-orb w-[500px] h-[500px] bg-primary-container/10 top-[10%] right-[-10%]" style="animation-delay: 3s;"></div>
+<div class="max-w-7xl mx-auto relative z-10">
+<div class="reveal text-center mb-6">
+<span class="font-label-caps text-label-caps text-secondary mb-4 block">THE PIPELINE</span>
+<h2 class="font-h1 text-h1 uppercase">How Narrate-AI Works</h2>
+</div>
+<p class="reveal text-center text-on-surface-variant font-body-lg text-body-lg max-w-2xl mx-auto mb-16">14 AI-powered steps from a single topic to a finished documentary video.</p>
+
+<!-- ===== Phase 1: Research ===== -->
+<div class="reveal mb-4">
+<div class="flex items-center gap-3 mb-4">
+<div class="h-[2px] flex-1 bg-gradient-to-r from-transparent via-primary/40 to-transparent"></div>
+<span class="font-label-caps text-label-caps text-primary px-3">PHASE 1 — RESEARCH &amp; CONTEXT</span>
+<div class="h-[2px] flex-1 bg-gradient-to-r from-transparent via-primary/40 to-transparent"></div>
+</div>
+<div class="reveal-stagger grid grid-cols-2 md:grid-cols-4 gap-4">
+<!-- Step 1 -->
+<div class="glass-floating rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 left-0 right-0 h-0.5 bg-primary/60"></div>
+<div class="flex items-center gap-2.5 mb-3">
+<div class="w-7 h-7 rounded-lg bg-primary-container flex items-center justify-center text-white text-xs font-bold shrink-0">1</div>
+<span class="font-label-caps text-[10px] text-primary">NARRATIVE</span>
+</div>
+<h4 class="font-h3 text-base text-white mb-1.5">Plan Outline</h4>
+<p class="text-xs text-on-surface-variant/70 leading-relaxed">LLM analyzes topic, creates 3–5 section documentary structure</p>
+</div>
+<!-- Step 2 -->
+<div class="glass-floating rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 left-0 right-0 h-0.5 bg-primary/60"></div>
+<div class="flex items-center gap-2.5 mb-3">
+<div class="w-7 h-7 rounded-lg bg-primary-container flex items-center justify-center text-white text-xs font-bold shrink-0">2</div>
+<span class="font-label-caps text-[10px] text-primary">DISCOVER</span>
+</div>
+<h4 class="font-h3 text-base text-white mb-1.5">Find Sources</h4>
+<p class="text-xs text-on-surface-variant/70 leading-relaxed">Serper.dev Google Search finds authoritative websites</p>
+</div>
+<!-- Step 3 -->
+<div class="glass-floating rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 left-0 right-0 h-0.5 bg-primary/60"></div>
+<div class="flex items-center gap-2.5 mb-3">
+<div class="w-7 h-7 rounded-lg bg-primary-container flex items-center justify-center text-white text-xs font-bold shrink-0">3</div>
+<span class="font-label-caps text-[10px] text-primary">CRAWL</span>
+</div>
+<h4 class="font-h3 text-base text-white mb-1.5">Extract Content</h4>
+<p class="text-xs text-on-surface-variant/70 leading-relaxed">Crawl4ai extracts text, chunks into 500-word segments</p>
+</div>
+<!-- Step 4 -->
+<div class="glass-floating rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 left-0 right-0 h-0.5 bg-primary/60"></div>
+<div class="flex items-center gap-2.5 mb-3">
+<div class="w-7 h-7 rounded-lg bg-primary-container flex items-center justify-center text-white text-xs font-bold shrink-0">4</div>
+<span class="font-label-caps text-[10px] text-primary">INDEX</span>
+</div>
+<h4 class="font-h3 text-base text-white mb-1.5">Vector Embed</h4>
+<p class="text-xs text-on-surface-variant/70 leading-relaxed">MiniLM-L12-v2 embeddings stored in Pinecone for RAG</p>
+</div>
+</div>
+<!-- Arrow down -->
+<div class="flex justify-center py-3">
+<svg class="w-5 h-8 text-primary/40" viewBox="0 0 20 32" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 0v24M4 18l6 8 6-8"/></svg>
+</div>
+</div>
+
+<!-- ===== Phase 2: RAG & Script ===== -->
+<div class="reveal mb-4">
+<div class="flex items-center gap-3 mb-4">
+<div class="h-[2px] flex-1 bg-gradient-to-r from-transparent via-secondary/40 to-transparent"></div>
+<span class="font-label-caps text-label-caps text-secondary px-3">PHASE 2 — RAG &amp; SCRIPT</span>
+<div class="h-[2px] flex-1 bg-gradient-to-r from-transparent via-secondary/40 to-transparent"></div>
+</div>
+<div class="reveal-stagger grid grid-cols-2 md:grid-cols-3 gap-4">
+<!-- Step 5 -->
+<div class="glass-floating rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 left-0 right-0 h-0.5 bg-secondary/60"></div>
+<div class="flex items-center gap-2.5 mb-3">
+<div class="w-7 h-7 rounded-lg bg-secondary-container flex items-center justify-center text-white text-xs font-bold shrink-0">5</div>
+<span class="font-label-caps text-[10px] text-secondary">QUERIES</span>
+</div>
+<h4 class="font-h3 text-base text-white mb-1.5">Generate Queries</h4>
+<p class="text-xs text-on-surface-variant/70 leading-relaxed">LLM creates semantic search queries for each section</p>
+</div>
+<!-- Step 6 -->
+<div class="glass-floating rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 left-0 right-0 h-0.5 bg-secondary/60"></div>
+<div class="flex items-center gap-2.5 mb-3">
+<div class="w-7 h-7 rounded-lg bg-secondary-container flex items-center justify-center text-white text-xs font-bold shrink-0">6</div>
+<span class="font-label-caps text-[10px] text-secondary">RETRIEVE</span>
+</div>
+<h4 class="font-h3 text-base text-white mb-1.5">Semantic Search</h4>
+<p class="text-xs text-on-surface-variant/70 leading-relaxed">Pinecone similarity search retrieves relevant notes</p>
+</div>
+<!-- Step 7 -->
+<div class="glass-floating rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 left-0 right-0 h-0.5 bg-secondary/60"></div>
+<div class="flex items-center gap-2.5 mb-3">
+<div class="w-7 h-7 rounded-lg bg-secondary-container flex items-center justify-center text-white text-xs font-bold shrink-0">7</div>
+<span class="font-label-caps text-[10px] text-secondary">SCRIPT</span>
+</div>
+<h4 class="font-h3 text-base text-white mb-1.5">Write Narration</h4>
+<p class="text-xs text-on-surface-variant/70 leading-relaxed">LLM writes documentary-style spoken narration script</p>
+</div>
+</div>
+<div class="flex justify-center py-3">
+<svg class="w-5 h-8 text-secondary/40" viewBox="0 0 20 32" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 0v24M4 18l6 8 6-8"/></svg>
+</div>
+</div>
+
+<!-- ===== Phase 3: Images ===== -->
+<div class="reveal mb-4">
+<div class="flex items-center gap-3 mb-4">
+<div class="h-[2px] flex-1 bg-gradient-to-r from-transparent via-tertiary/40 to-transparent"></div>
+<span class="font-label-caps text-label-caps text-tertiary px-3">PHASE 3 — VISUAL INTELLIGENCE</span>
+<div class="h-[2px] flex-1 bg-gradient-to-r from-transparent via-tertiary/40 to-transparent"></div>
+</div>
+<div class="reveal-stagger grid grid-cols-2 md:grid-cols-4 gap-4">
+<!-- Step 8 -->
+<div class="glass-floating rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 left-0 right-0 h-0.5 bg-tertiary/60"></div>
+<div class="flex items-center gap-2.5 mb-3">
+<div class="w-7 h-7 rounded-lg bg-tertiary-container flex items-center justify-center text-white text-xs font-bold shrink-0">8</div>
+<span class="font-label-caps text-[10px] text-tertiary">SEGMENT</span>
+</div>
+<h4 class="font-h3 text-base text-white mb-1.5">Zone Detection</h4>
+<p class="text-xs text-on-surface-variant/70 leading-relaxed">LLM finds visual breakpoints in script for image changes</p>
+</div>
+<!-- Step 9 -->
+<div class="glass-floating rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 left-0 right-0 h-0.5 bg-tertiary/60"></div>
+<div class="flex items-center gap-2.5 mb-3">
+<div class="w-7 h-7 rounded-lg bg-tertiary-container flex items-center justify-center text-white text-xs font-bold shrink-0">9</div>
+<span class="font-label-caps text-[10px] text-tertiary">PLACE</span>
+</div>
+<h4 class="font-h3 text-base text-white mb-1.5">Image Mapping</h4>
+<p class="text-xs text-on-surface-variant/70 leading-relaxed">Maps zones to segments, generates CLIP-ready descriptions</p>
+</div>
+<!-- Step 10 -->
+<div class="glass-floating rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 left-0 right-0 h-0.5 bg-tertiary/60"></div>
+<div class="flex items-center gap-2.5 mb-3">
+<div class="w-7 h-7 rounded-lg bg-tertiary-container flex items-center justify-center text-white text-xs font-bold shrink-0">10</div>
+<span class="font-label-caps text-[10px] text-tertiary">RETRIEVE</span>
+</div>
+<h4 class="font-h3 text-base text-white mb-1.5">Search Images</h4>
+<p class="text-xs text-on-surface-variant/70 leading-relaxed">Google Images via Serper, parallel downloads per segment</p>
+</div>
+<!-- Step 11 -->
+<div class="glass-floating rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 left-0 right-0 h-0.5 bg-tertiary/60"></div>
+<div class="flex items-center gap-2.5 mb-3">
+<div class="w-7 h-7 rounded-lg bg-tertiary-container flex items-center justify-center text-white text-xs font-bold shrink-0">11</div>
+<span class="font-label-caps text-[10px] text-tertiary">RANK</span>
+</div>
+<h4 class="font-h3 text-base text-white mb-1.5">CLIP Ranking</h4>
+<p class="text-xs text-on-surface-variant/70 leading-relaxed">OpenCLIP scores text–image similarity + quality metrics</p>
+</div>
+</div>
+<div class="flex justify-center py-3">
+<svg class="w-5 h-8 text-tertiary/40" viewBox="0 0 20 32" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 0v24M4 18l6 8 6-8"/></svg>
+</div>
+</div>
+
+<!-- ===== Phase 4: Production ===== -->
+<div class="reveal mb-4">
+<div class="flex items-center gap-3 mb-4">
+<div class="h-[2px] flex-1 bg-gradient-to-r from-transparent via-error/40 to-transparent"></div>
+<span class="font-label-caps text-label-caps text-error px-3">PHASE 4 — PRODUCTION</span>
+<div class="h-[2px] flex-1 bg-gradient-to-r from-transparent via-error/40 to-transparent"></div>
+</div>
+<div class="reveal-stagger grid grid-cols-2 md:grid-cols-3 gap-4">
+<!-- Step 12 -->
+<div class="glass-floating rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 left-0 right-0 h-0.5 bg-error/60"></div>
+<div class="flex items-center gap-2.5 mb-3">
+<div class="w-7 h-7 rounded-lg bg-error-container flex items-center justify-center text-white text-xs font-bold shrink-0">12</div>
+<span class="font-label-caps text-[10px] text-error">NARRATE</span>
+</div>
+<h4 class="font-h3 text-base text-white mb-1.5">TTS Synthesis</h4>
+<p class="text-xs text-on-surface-variant/70 leading-relaxed">ElevenLabs or Edge TTS generates audio narration</p>
+</div>
+<!-- Step 13 -->
+<div class="glass-floating rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 left-0 right-0 h-0.5 bg-error/60"></div>
+<div class="flex items-center gap-2.5 mb-3">
+<div class="w-7 h-7 rounded-lg bg-error-container flex items-center justify-center text-white text-xs font-bold shrink-0">13</div>
+<span class="font-label-caps text-[10px] text-error">TIMELINE</span>
+</div>
+<h4 class="font-h3 text-base text-white mb-1.5">Sync Audio + Visuals</h4>
+<p class="text-xs text-on-surface-variant/70 leading-relaxed">Calculates durations, syncs images to narration timing</p>
+</div>
+<!-- Step 14 -->
+<div class="glass-floating rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 left-0 right-0 h-0.5 bg-error/60"></div>
+<div class="flex items-center gap-2.5 mb-3">
+<div class="w-7 h-7 rounded-lg bg-error-container flex items-center justify-center text-white text-xs font-bold shrink-0">14</div>
+<span class="font-label-caps text-[10px] text-error">RENDER</span>
+</div>
+<h4 class="font-h3 text-base text-white mb-1.5">Assemble Video</h4>
+<p class="text-xs text-on-surface-variant/70 leading-relaxed">Ken Burns zoom, background music, ffmpeg mux → MP4</p>
+</div>
+</div>
+</div>
+
+<!-- Bottom summary bar -->
+<div class="reveal mt-12 glass-surface rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-tertiary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-xl text-tertiary">check_circle</span>
+</div>
+<div>
+<p class="font-h3 text-h3 text-white">14 steps. One command.</p>
+<p class="font-body-md text-sm text-on-surface-variant">From topic to finished documentary in minutes.</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full bg-primary-container border-2 border-surface flex items-center justify-center"><span class="text-[10px] text-white font-bold">AI</span></div>
+<div class="w-8 h-8 rounded-full bg-secondary-container border-2 border-surface flex items-center justify-center"><span class="text-[10px] text-white font-bold">CLIP</span></div>
+<div class="w-8 h-8 rounded-full bg-tertiary-container border-2 border-surface flex items-center justify-center"><span class="text-[10px] text-white font-bold">TTS</span></div>
+</div>
+<span class="text-xs text-on-surface-variant font-body-md">Powered by Groq, OpenCLIP, ElevenLabs</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Terminal Section -->
+<section class="py-24 px-8 max-w-4xl mx-auto">
+<div class="reveal-scale bg-[#0e0e12] rounded-xl overflow-hidden border border-white/10 shadow-2xl">
+<div class="bg-surface-container-high px-6 py-3 flex items-center gap-2 border-b border-white/5">
+<div class="w-3 h-3 rounded-full bg-error/50"></div>
+<div class="w-3 h-3 rounded-full bg-secondary/50"></div>
+<div class="w-3 h-3 rounded-full bg-tertiary/50"></div>
+<span class="ml-4 font-mono text-xs text-white/40">narrate-ai — production_log</span>
+</div>
+<div class="p-8 font-mono text-sm">
+<div class="terminal-line flex gap-4 mb-3">
+<span class="text-primary">$</span>
+<span class="text-white">uv run main.py "Apollo Program"</span>
+</div>
+<div class="terminal-line flex gap-4 mb-3">
+<span class="text-tertiary">✓</span>
+<span class="text-white/60">[PIPELINE] Starting documentary generation for topic: Apollo Program</span>
+</div>
+<div class="terminal-line flex gap-4 mb-3">
+<span class="text-tertiary">✓</span>
+<span class="text-white/60">[PIPELINE] Step 1: Narrative planning</span>
+</div>
+<div class="terminal-line flex gap-4 mb-3">
+<span class="text-tertiary">✓</span>
+<span class="text-white/60">[NARRATIVE] Plan ready: 4 sections, target 120s</span>
+</div>
+<div class="terminal-line flex gap-4 mb-3">
+<span class="text-tertiary">✓</span>
+<span class="text-white/60">[PIPELINE] Step 2: Research discovery</span>
+</div>
+<div class="terminal-line flex gap-4 mb-3">
+<span class="text-tertiary">✓</span>
+<span class="text-white/60">[PIPELINE] Step 7: Script generation</span>
+</div>
+<div class="terminal-line flex gap-4 mb-3">
+<span class="text-tertiary">✓</span>
+<span class="text-white/60">[SCRIPT] Script ready: 487 words</span>
+</div>
+<div class="terminal-line flex gap-4 mb-3">
+<span class="text-tertiary">✓</span>
+<span class="text-white/60">[PIPELINE] Step 11: Image ranking</span>
+</div>
+<div class="terminal-line flex gap-4 mb-3">
+<span class="text-tertiary">✓</span>
+<span class="text-white/60">[PIPELINE] Step 12: Narration generation</span>
+</div>
+<div class="terminal-line flex gap-4 mb-3">
+<span class="text-tertiary">✓</span>
+<span class="text-white/60">[PIPELINE] Step 14: Video assembly</span>
+</div>
+<div class="terminal-line flex gap-4">
+<span class="text-secondary">→</span>
+<span class="text-secondary">Completed successfully: runs/20250428-120000-apollo-program/final_output.mp4</span>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="max-w-7xl mx-auto px-8 py-24 text-center">
+<div class="reveal-scale glass-surface p-20 rounded-2xl border-primary/20 relative overflow-hidden">
+<div class="absolute inset-0 opacity-10 pointer-events-none">
+<img class="w-full h-full object-cover" data-alt="dramatic lighting on high-end film editing equipment in a dark room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAm94v1xkIpQ09vBemNCjSTeOYopeeOHJ9IcM6T4wDsGAxwX5ZBkuQWuCWBFI92Ru-HTSsubBQOf8kGZaHVWP_bRd-6U0mtmvaUdEtgVuZPIyZePcxiXqAKwSI2gUc0Bnlf9R6j4FF_9T0MMEpPD-_4RpgtGO87FVp8ijvi14-DcsuiRNDt_adJKX9U4YuEnnV5kRTetD16ZrbARh5RdTESI6Z2fKgUvZ4mfAQvpNlMY85aucsTiE2b9wc4tmSZ76wyCiIc8sQk1hVV"/>
+</div>
+<div class="glow-orb w-[600px] h-[600px] bg-primary-container/10 top-[-20%] left-[-10%]" style="animation-delay: 1s;"></div>
+<h2 class="font-h1 text-h1 uppercase mb-6 relative z-10">Ready to tell your story?</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-12 max-w-xl mx-auto relative z-10">Start generating your next project with the power of AI.</p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-6 relative z-10">
+<a href="https://github.com/SOBANEJAZ/Narrate-AI" target="_blank" rel="noopener noreferrer" class="px-12 py-5 bg-primary-container text-white font-h3 text-h3 rounded-lg hover:scale-105 transition-all text-center">View on GitHub</a>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-stone-950 w-full py-12 px-8 border-t border-white/5">
+<div class="flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto">
+<div class="flex flex-col items-center md:items-start gap-4">
+<span class="text-lg font-bold text-white/90">Narrate-AI</span>
+<p class="font-['Space_Grotesk'] text-xs tracking-widest uppercase text-stone-500 max-w-md text-center md:text-left">
+                    © 2026 Narrate-AI. Cinematic precision for the next generation of storytellers.
+                </p>
+<p class="font-['Space_Grotesk'] text-xs tracking-widest uppercase text-stone-500 max-w-md text-center md:text-left">
+                    Soban Ejaz &mdash; <a href="mailto:sobanpythonista@gmail.com" class="hover:text-amber-400 transition-colors">sobanpythonista@gmail.com</a>
+                </p>
+</div>
+<div class="flex gap-8 items-center">
+<a class="group flex items-center gap-2 font-['Space_Grotesk'] text-xs tracking-widest uppercase text-stone-500 hover:text-amber-400 transition-colors opacity-80 hover:opacity-100" href="https://github.com/SOBANEJAZ/" target="_blank" rel="noopener noreferrer">
+<svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+<span>GitHub</span>
+</a>
+<a class="group flex items-center gap-2 font-['Space_Grotesk'] text-xs tracking-widest uppercase text-stone-500 hover:text-amber-400 transition-colors opacity-80 hover:opacity-100" href="https://www.linkedin.com/in/sobanejaz/" target="_blank" rel="noopener noreferrer">
+<svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+<span>LinkedIn</span>
+</a>
+</div>
+</div>
+</footer>
+<script>
+(function() {
+    // ===== Scroll Reveal (Intersection Observer) =====
+    const revealElements = document.querySelectorAll('.reveal, .reveal-stagger, .reveal-left, .reveal-right, .reveal-scale');
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    revealElements.forEach(el => revealObserver.observe(el));
+
+    // ===== Terminal line-by-line reveal =====
+    const terminalLines = document.querySelectorAll('.terminal-line');
+    const terminalSection = document.querySelector('.reveal-scale');
+    let terminalAnimated = false;
+    const terminalObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !terminalAnimated) {
+                terminalAnimated = true;
+                terminalLines.forEach((line, i) => {
+                    setTimeout(() => {
+                        line.classList.add('show');
+                    }, i * 300);
+                });
+                terminalObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.3 });
+    if (terminalSection) terminalObserver.observe(terminalSection);
+
+    // ===== Floating Glow Orbs =====
+    const orbs = document.querySelectorAll('.glow-orb');
+    const orbObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+            }
+        });
+    }, { threshold: 0.1 });
+    orbs.forEach(orb => orbObserver.observe(orb));
+
+    // ===== Parallax on hero image =====
+    const heroImg = document.querySelector('.parallax-slow');
+    if (heroImg) {
+        window.addEventListener('scroll', () => {
+            const scrolled = window.scrollY;
+            if (scrolled < 1200) {
+                heroImg.style.transform = `translateY(${scrolled * 0.3}px) scale(1.1)`;
+            }
+        }, { passive: true });
+    }
+
+    // ===== Magnetic hover on CTA links =====
+    document.querySelectorAll('a[class*="rounded-lg"]').forEach(btn => {
+        btn.addEventListener('mousemove', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            this.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px)`;
+        });
+        btn.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+        });
+    });
+})();
+</script>
+</body></html>
