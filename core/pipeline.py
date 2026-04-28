@@ -28,6 +28,7 @@ from agents import (
     generate_section_queries,
     rank_images,
     retrieve_images,
+    filter_images_by_aspect_ratio,
     segment_for_images,
     synthesize_audio,
     write_script,
@@ -262,6 +263,12 @@ def run_pipeline(config, topic):
     # ========== PHASE 3: Image Retrieval ==========
     print("[PIPELINE] Step 10: Image retrieval", flush=True)
     segments = retrieve_images(config, cache, segments, run_dir / "images")
+
+    print("[PIPELINE] Step 10.5: Filtering images by aspect ratio", flush=True)
+    for segment in segments:
+        candidates = segment.get("candidate_images", [])
+        filtered = filter_images_by_aspect_ratio(candidates)
+        segment["candidate_images"] = filtered
 
     print("[PIPELINE] Step 11: Image ranking", flush=True)
     ranking_state = create_ranking_state()
