@@ -32,10 +32,10 @@ from agents import (
     synthesize_audio,
     write_script,
 )
-from core.models import create_script_segment, create_timeline_item
+from core.models import create_script_segment
 from groq import Groq
 from services.rag_manager import create_pinecone_manager
-from services.video_assembly import CONFIG, assemble_video, build_timeline
+from services.video_assembly import assemble_video, build_timeline
 
 
 class MultiLayerCache:
