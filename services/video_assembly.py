@@ -10,12 +10,13 @@ Uses MoviePy for video manipulation with PIL for image processing.
 
 import math
 import os
+import subprocess
+import tempfile
 from pathlib import Path
 
 import numpy as np
 from moviepy import (
     AudioFileClip,
-    CompositeAudioClip,
     ColorClip,
     CompositeVideoClip,
     ImageClip,
@@ -242,51 +243,121 @@ def assemble_video(
 
         final_duration = final_clip.duration
 
-        # Add background music
-        print(f"[VIDEO] Adding background music", flush=True)
-        background_music_path = CONFIG["background_music_path"]
-        if background_music_path.exists():
-            music_volume = CONFIG["music_volume"]
-            fade_duration = CONFIG["music_fade_duration"]
-
-            original_audio = final_clip.audio
-            bg_music = AudioFileClip(str(background_music_path))
-            try:
-                bg_music = bg_music.with_duration(final_duration)
-
-                if fade_duration > 0 and final_duration > fade_duration:
-                    from moviepy import afx
-
-                    bg_music = bg_music.with_effects(
-                        [
-                            afx.AudioFadeIn(fade_duration),
-                            afx.AudioFadeOut(fade_duration),
-                        ]
-                    )
-
-                bg_music = bg_music.with_volume_scalar(music_volume)
-
-                final_audio = CompositeAudioClip([original_audio, bg_music])
-                final_clip = final_clip.with_audio(final_audio)
-            finally:
-                bg_music.close()
-
-        # Render final video
+        # Write video-only (no audio) to avoid moviepy pipe deadlocks
+        video_only_path = str(output_path) + ".video_only.mp4"
+        print(f"[VIDEO] Rendering video frames", flush=True)
         final_clip.write_videofile(
-            str(output_path),
+            video_only_path,
             fps=fps,
             codec="libx264",
-            audio_codec="aac",
-            threads=os.cpu_count(),
+            audio=False,
             logger="bar",
         )
+
+        # Write narration audio to a separate file
+        narration_audio_path = str(output_path) + ".narration.wav"
+        print(f"[VIDEO] Extracting narration audio", flush=True)
+        final_clip.audio.write_audiofile(narration_audio_path, logger=None)
+
         final_clip.close()
+        for clip in clips:
+            clip.close()
+        clips.clear()
+
+        # Use ffmpeg to combine video + narration + background music
+        background_music_path = CONFIG["background_music_path"]
+        print(f"[VIDEO] Muxing audio with ffmpeg", flush=True)
+        _mux_audio(
+            video_only_path, narration_audio_path, background_music_path,
+            str(output_path), final_duration, CONFIG["music_volume"],
+            CONFIG["music_fade_duration"],
+        )
+
+        # Cleanup temp files
+        for p in [video_only_path, narration_audio_path]:
+            if os.path.exists(p):
+                os.remove(p)
+
         print(f"[VIDEO] Render complete: {output_path}", flush=True)
     finally:
         for clip in clips:
             clip.close()
 
     return output_path
+
+
+def _mux_audio(
+    video_path, narration_path, music_path, output_path, duration, volume, fade_duration
+):
+    """Combine video + narration + background music using ffmpeg CLI.
+
+    Avoids all moviepy audio pipe deadlocks by doing audio mixing in ffmpeg.
+    """
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        mixed_audio = tmp.name
+
+    try:
+        narration_exists = os.path.exists(narration_path) and os.path.getsize(narration_path) > 0
+        music_exists = os.path.exists(music_path) and os.path.getsize(music_path) > 0
+
+        if narration_exists and music_exists:
+            # Trim + fade background music
+            fade_out_start = max(0, duration - fade_duration)
+            cmd_bg = [
+                "ffmpeg", "-y", "-loglevel", "error",
+                "-i", str(music_path),
+                "-t", f"{duration:.3f}",
+                "-af", (
+                    f"volume={volume},"
+                    f"afade=t=in:st=0:d={fade_duration:.3f},"
+                    f"afade=t=out:st={fade_out_start:.3f}:d={fade_duration:.3f}"
+                ),
+                "-ar", "44100", "-ac", "2",
+                mixed_audio,
+            ]
+            subprocess.run(cmd_bg, check=True, capture_output=True)
+
+            # Mix narration + bg music
+            cmd_mix = [
+                "ffmpeg", "-y", "-loglevel", "error",
+                "-i", narration_path,
+                "-i", mixed_audio,
+                "-filter_complex",
+                "[0:a][1:a]amix=inputs=2:duration=first:dropout_transition=2[out]",
+                "-map", "[out]",
+                "-ar", "44100", "-ac", "2",
+                mixed_audio + ".final.wav",
+            ]
+            subprocess.run(cmd_mix, check=True, capture_output=True)
+            final_audio = mixed_audio + ".final.wav"
+        elif narration_exists:
+            final_audio = narration_path
+        else:
+            print("[VIDEO] Warning: no audio found, creating silent track", flush=True)
+            cmd_silent = [
+                "ffmpeg", "-y", "-loglevel", "error",
+                "-f", "lavfi", "-i", f"anullsrc=r=44100:cl=stereo",
+                "-t", f"{duration:.3f}",
+                mixed_audio,
+            ]
+            subprocess.run(cmd_silent, check=True, capture_output=True)
+            final_audio = mixed_audio
+
+        # Mux video + combined audio
+        cmd_mux = [
+            "ffmpeg", "-y", "-loglevel", "error",
+            "-i", video_path,
+            "-i", final_audio,
+            "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+            "-shortest",
+            str(output_path),
+        ]
+        subprocess.run(cmd_mux, check=True, capture_output=True)
+        print(f"[VIDEO] Audio muxed successfully", flush=True)
+    finally:
+        for f in [mixed_audio, mixed_audio + ".final.wav"]:
+            if os.path.exists(f):
+                os.remove(f)
 
 
 def _build_segment_clip(
