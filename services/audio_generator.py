@@ -16,7 +16,7 @@ from elevenlabs.client import ElevenLabs
 from elevenlabs.core.api_error import ApiError
 
 
-DEFAULT_EDGE_VOICE = "en-US-AriaNeural"
+DEFAULT_EDGE_VOICE = "en-IN-PrabhatNeural"
 
 OUTPUT_FORMAT_PRIMARY = "wav_44100"
 OUTPUT_FORMAT_FALLBACK = "mp3_44100_128"
